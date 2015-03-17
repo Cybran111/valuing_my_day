@@ -2,8 +2,8 @@ import math
 from datetime import date
 from tkinter import *
 
-class Deal:
 
+class Deal:
     objects = []
 
     def __init__(self, name, time, effort, discipline=0, desc=''):
@@ -12,16 +12,15 @@ class Deal:
 
     def get_value(self):
         if self.discipline is 0:
-            return math.sqrt(self.time**2+self.effort**2)
+            return math.sqrt(self.time ** 2 + self.effort ** 2)
         else:
-            return (self.time**3+self.effort**3+self.discipline**3)**(1/3)
+            return (self.time ** 3 + self.effort ** 3 + self.discipline ** 3) ** (1 / 3)
 
     def __str__(self):
-        return self.name+'\t'+(self.desc+'\t' if self.desc != '' else '')
+        return self.name + '\t' + (self.desc + '\t' if self.desc != '' else '')
 
 
 class Day:
-
     objects = []
 
     def __init__(self, date_, deals=dict()):
@@ -32,10 +31,10 @@ class Day:
         self.deals[deal.name] = {'completed': is_completed, 'deal': deal}
 
     def add_deal(self, deal, is_completed=False):
-        if not deal.name in self.deals.keys():
+        if deal.name not in self.deals.keys():
             self.update_deal(deal, is_completed)
         else:
-            print('you already have deal named', deal.name+'.')
+            print('you already have deal named', deal.name + '.')
 
     def remove_deal(self, name):
         if name in self.deals.keys():
@@ -69,7 +68,6 @@ class Day:
 
 
 class DayVisualiser:
-
     def __init__(self, days):
         self.days = days
         self.root = Tk()
@@ -113,7 +111,7 @@ class DayVisualiser:
         # setting default values for currently selected day and deal
         self.sel_day = self.days[0]
         self.sel_deal = self.sel_day.deals[list(self.sel_day.deals.keys())[0]]
-        
+
         self.root.mainloop()
 
     def day_change_react(self):
@@ -122,7 +120,10 @@ class DayVisualiser:
         self.task_list.delete(0, END)
         # refresh the task list
         for i in self.sel_day.deals:
-            self.task_list.insert(END, ('+' if self.sel_day.deals[i]['completed'] else '-')+self.sel_day.deals[i]['deal'].name)
+            self.task_list.insert(END,
+                                  ('+' if self.sel_day.deals[i]['completed'] else '-')
+                                  + self.sel_day.deals[i]['deal'].name
+            )
 
     def delete_task(self):
         t = list(map(int, self.task_list.curselection()))
@@ -154,7 +155,7 @@ class DayVisualiser:
         temp.resizable(False, False)
         # constructing the info string
         s = ''
-        s += 'Name: ' + '\t' + self.sel_deal['deal'].name+'\n'
+        s += 'Name: ' + '\t' + self.sel_deal['deal'].name + '\n'
         s += 'Description: \t' + self.sel_deal['deal'].desc + '\n'
         s += 'Completed: \t' + ('Yes' if self.sel_deal['completed'] else 'No') + '\n'
         s += 'Effort: \t' + DayVisualiser.stars(self.sel_deal['deal'].effort) + '\n'
@@ -166,12 +167,12 @@ class DayVisualiser:
         temp.mainloop()
 
     def stars(x):
-            r = ''
-            for x in range(round(x)):
-                r += '★'
-            for x in range(5-len(r)):
-                r += '☆'
-            return r
+        r = ''
+        for x in range(round(x)):
+            r += '★'
+        for x in range(5 - len(r)):
+            r += '☆'
+        return r
 
     def show_day_info(self):
         temp = Tk()
@@ -180,24 +181,24 @@ class DayVisualiser:
         temp.geometry('400x500+500+300')
 
         temp.title(str(self.sel_day))
-        
+
         temp.resizable(False, False)
 
-        
-        
         s = ''
-        s += 'Date: ' + '\t' + str(self.sel_day) +'\n'
+        s += 'Date: ' + '\t' + str(self.sel_day) + '\n'
         s += 'Net value: \t' + str(DayVisualiser.stars(self.sel_day.get_net_value())) + '\n'
-        t = ('Yes' if len([x for x in self.sel_day.deals.keys() if not self.sel_day.deals[x]['completed']]) == 0 else 'No')
+        t = (
+            'Yes' if len(
+                [x for x in self.sel_day.deals.keys() if not self.sel_day.deals[x]['completed']]) == 0 else 'No')
         s += 'Completed: \t' + t + '\n'
         Label(temp, text=s, width=399).pack()
-
 
         canv = Canvas(temp, width='400', heigh='400', bg='white')
         canv.pack()
 
-        T = 400/self.sel_day.get_value()
-        
+        # don't know for what purpose it is; previous T
+        time = 400 / self.sel_day.get_value()
+
         class Point:
             def __init__(self, a, b):
                 self.x, self.y = a, b
@@ -206,12 +207,12 @@ class DayVisualiser:
                 self.x, self.y = a, b
 
             def line_to(canv, P1, deal):
-                canv.create_line(P1.x, P1.y, P1.x+T*deal.effort, P1.y-T*deal.time, arrow=LAST)
-                P1.x += deal.effort*T
-                P1.y -= deal.time*T
+                canv.create_line(P1.x, P1.y, P1.x + time * deal.effort, P1.y - time * deal.time, arrow=LAST)
+                P1.x += deal.effort * time
+                P1.y -= deal.time * time
 
             def __mul__(self, n):
-                return Point(self.x*n, self.y*n)
+                return Point(self.x * n, self.y * n)
 
         canv.create_line(2, 400, 400, 400, arrow=LAST)
         canv.create_line(2, 400, 2, 0, arrow=LAST)
@@ -222,9 +223,8 @@ class DayVisualiser:
             if not comp:
                 continue
             Point.line_to(canv, point, deal)
-        
-        temp.mainloop()
 
+        temp.mainloop()
 
     def check_deal(self):
         self.refresh_cur_deal()
@@ -236,7 +236,6 @@ class DayVisualiser:
     def graph_day(self):
         pass
 
-# ★ ☆
 
 a = Deal('new deal', 3, 2)
 day = Day(date.today())
